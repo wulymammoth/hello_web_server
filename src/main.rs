@@ -12,7 +12,9 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        thread::spawn(|| {
+            handle_connection(stream);
+        });
     }
 }
 
@@ -35,7 +37,7 @@ fn handle_connection(mut stream: TcpStream) {
         thread::sleep(Duration::from_secs(5));
         ("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
     } else {
-        ("HTTP/1.1 404 NOT FOUND\r\n\r\n","404.html")
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "404.html")
     };
 
     let contents = fs::read_to_string(filename).unwrap();
