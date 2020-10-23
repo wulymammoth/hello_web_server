@@ -1,6 +1,7 @@
-use std::fs;
 use std::io::prelude::*; // gain access to certain traits that let us read from and write to the stream
 use std::net::{TcpListener, TcpStream};
+use std::time::Duration;
+use std::{fs, thread};
 
 fn main() {
     // port chosen for two reasons:
@@ -26,7 +27,12 @@ fn handle_connection(mut stream: TcpStream) {
 
     // transforms a string into a "byte string" using `b` prefix on double quotes
     let get = b"GET / HTTP/1.1\r\n";
+    let sleep = b"GET /sleep HTTP/1.1\r\n";
+
     let (status_line, filename) = if buffer.starts_with(get) {
+        ("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
+    } else if buffer.starts_with(sleep) {
+        thread::sleep(Duration::from_secs(5));
         ("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND\r\n\r\n","404.html")
