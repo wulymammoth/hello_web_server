@@ -24,22 +24,35 @@ fn handle_connection(mut stream: TcpStream) {
     // read the bytes and stick them into the mutable buffer
     stream.read(&mut buffer).unwrap();
 
-    let contents = fs::read_to_string("hello.html").unwrap();
+    // transforms a string into a "byte string" using `b` prefix on double quotes
+    let get = b"GET / HTTP/1.1\r\n";
 
-    // the following converts the bytes in the buffer into a string
-    // the "lossy" part indicates it'll replace any invalid UTF-8 sequence with
-    // a ? symbol (U+FFFD REPLACEMENT CHARACTER)
-    // `let out = String::from_utf8_lossy(&buffer[..]);`
-    // `println!("Request: {}", out);`
-    let response = format!(
-        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
-        contents.len(),
-        contents
-    );
+    if buffer.starts_with(get) {
+        let contents = fs::read_to_string("hello.html").unwrap();
 
-    // convert string to bytes and write to stream
-    // because the write operation could fail, we use unwrap
-    stream.write(response.as_bytes()).unwrap();
+        // the following converts the bytes in the buffer into a string
+        // the "lossy" part indicates it'll replace any invalid UTF-8 sequence with
+        // a ? symbol (U+FFFD REPLACEMENT CHARACTER)
+        // `let out = String::from_utf8_lossy(&buffer[..]);`
+        // `println!("Request: {}", out);`
+        let response = format!(
+            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
+            contents.len(),
+            contents
+        );
 
-    stream.flush().unwrap();
+        // convert string to bytes and write to stream
+        // because the write operation could fail, we use unwrap
+        stream.write(response.as_bytes()).unwrap();
+
+        stream.flush().unwrap();
+    } else {
+        let status_line = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+        let contents = fs::read_to_string("404.html").unwrap();
+
+        let response = format!("{}{}", status_line, contents);
+
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
+    }
 }
