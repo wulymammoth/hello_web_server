@@ -1,3 +1,4 @@
+use hello::ThreadPool;
 use std::io::prelude::*; // gain access to certain traits that let us read from and write to the stream
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
@@ -8,11 +9,12 @@ fn main() {
     // 1. HTTP normally accepted
     // 2. 7878 is "rust typed" on a telephone
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(4);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        thread::spawn(|| {
+        pool.execute(|| {
             handle_connection(stream);
         });
     }

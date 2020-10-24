@@ -19,3 +19,8 @@
     - others models include:
       - fork/join
       - single-threaded async I/O (NodeJS)
+
+- capacity vs length
+  - **capacity** is the amount of space allocated for any *future* elements that will be added into the vector
+  - **length** specifies the number of *actual* elements within the vector
+  * NOTE: if a vector's length exceeds its capacity, its capacity will automatically be increased, but its elements will have to be reallocated (dynamic arrays)
