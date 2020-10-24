@@ -24,3 +24,6 @@
   - **capacity** is the amount of space allocated for any *future* elements that will be added into the vector
   - **length** specifies the number of *actual* elements within the vector
   * NOTE: if a vector's length exceeds its capacity, its capacity will automatically be increased, but its elements will have to be reallocated (dynamic arrays)
+
+- graceful shutdown and clean-up
+  - `Drop` trait can be used to call `join` on each thread in a thread pool such that they can finish the requests they're working on before closing
